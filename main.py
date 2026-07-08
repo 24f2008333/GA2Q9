@@ -90,21 +90,19 @@ def root():
 # ----------------------------
 @app.post("/orders", status_code=201)
 def create_order(
-    body: OrderCreate,
+    body: Optional[OrderCreate] = None,
     idempotency_key: str = Header(..., alias="Idempotency-Key"),
 ):
-
     if idempotency_key in idempotency_store:
         return idempotency_store[idempotency_key]
 
     order = {
         "id": str(uuid.uuid4()),
-        "item": body.item,
-        "quantity": body.quantity,
+        "item": body.item if body else None,
+        "quantity": body.quantity if body else 1,
     }
 
     idempotency_store[idempotency_key] = order
-
     return order
 
 # ----------------------------
